@@ -20,6 +20,7 @@
 #include<iostream>
 #include<WinSock2.h>
 #include<WS2tcpip.h>
+#include <windows.h>
 
 
 using std::cin;
@@ -28,7 +29,7 @@ using std::endl;
 
 #define DEFAULT_PORT	"27015"
 #define BUFFER_SIZE		   1500
-#define MAX_CONNECTIONS       5
+#define MAX_CONNECTIONS       3
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -54,7 +55,7 @@ union ClientSocketData
 		return (unsigned char)client_socket.sa_data[0] * 256 +
 			(unsigned char)client_socket.sa_data[1];
 
-		
+
 	}
 	char* get_socket(char* sz_client_name) const
 	{
@@ -73,9 +74,16 @@ union ClientSocketData
 	}
 };
 
-void HandleClient();
-SOCKET ClientSocket; 
-//SOCKET clients[MAX_CONNECTIUOS]{};
+void HandleClient(LPVOID LParam);
+SOCKET ClientSocket;
+SOCKET client_sockets[MAX_CONNECTIONS]{};
+HANDLE client_handles[MAX_CONNECTIONS]{};
+DWORD dw_thread_id[MAX_CONNECTIONS]{};
+int* client_number[MAX_CONNECTIONS]{};
+int number_of_clients = 0;
+
+void PrintNumberOfClients();
+int FindFreeSlot();
 
 void main()
 {
@@ -149,67 +157,91 @@ void main()
 	}
 	cout << "Server started on TCP port " << DEFAULT_PORT << endl;
 
-	
+
 	//5. Accept connection:
 	do
 	{
-
+		PrintNumberOfClients();
 		CHAR sz_client_name[32];
 		int namelen = 32;
 		SOCKADDR client_socket;
 		ZeroMemory(&client_socket, sizeof(client_socket));
 
-		ClientSocket = accept(ListenSocket, (SOCKADDR*)&client_socket,&namelen );//sizeof(saServer)
-		/*char buffer[INET_ADDRSTRLEN];
-		std::string cidrlong = inet_ntop(AF_INET, &saServer.sa_data, buffer, sizeof(buffer));//AF_INET6
-		std::cout << "**** #" << cidrlong << endl;*/
-		
-		//cout << "**** #" << addr->sa_family 
-		if (ClientSocket == INVALID_SOCKET)
+		if (number_of_clients < MAX_CONNECTIONS)
 		{
-			cout << "Accept failed with error #" << WSAGetLastError() << endl;
-			closesocket(ListenSocket);
-			//WSACleanup();
-			//return;
-		}
-		
-		//
-		// HandleClient(ClientSocket);
-		
-		HANDLE handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)HandleClient, NULL, 0, 0);
+			int i = FindFreeSlot();
+			if (client_number[i] == NULL) {
+				client_number[i] = (int*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(int));
+				*client_number[i] = number_of_clients;
+				//client_number[number_of_clients] = (int*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(int));
+				//*client_number[number_of_clients] = number_of_clients;
+			}
+			client_sockets[i] = accept(ListenSocket, (SOCKADDR*)&client_socket, &namelen);//sizeof(saServer)
+			/*char buffer[INET_ADDRSTRLEN];
+			std::string cidrlong = inet_ntop(AF_INET, &saServer.sa_data, buffer, sizeof(buffer));//AF_INET6
+			std::cout << "**** #" << cidrlong << endl;*/
 
+			//cout << "**** #" << addr->sa_family 
+			if (ClientSocket == INVALID_SOCKET)
+			{
+				cout << "Accept failed with error #" << WSAGetLastError() << endl;
+				closesocket(ListenSocket);
+				//WSACleanup();
+				//return;
+			}
+
+			//
+			// HandleClient(ClientSocket);
+
+			//HANDLE handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)HandleClient, NULL, 0, 0);
+			client_handles[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)HandleClient, client_number[i], 0, 0);
+			number_of_clients++;
+		}
+		else
+		{
+			SOCKET extra_socket = accept(ListenSocket, &client_socket, &namelen);
+			char recvextrabuffer[BUFFER_SIZE]{};
+			recv(extra_socket, recvextrabuffer, BUFFER_SIZE, 0);
+			char message[] = "No free connections left";
+			send(extra_socket, message, sizeof(message), 0);
+			shutdown(extra_socket, SD_SEND);
+			cout << ClientSocketData(client_socket).get_socket(sz_client_name) << " was disconnected";
+			closesocket(extra_socket);
+		}
+		Sleep(100);
 	} while (true);
 	system("PAUSE");
 	WSACleanup();
 	system("PAUSE");
 }
 
-void HandleClient()
+void HandleClient(LPVOID LParam)
 {
 
 	CHAR sz_client_name[32];
 	int namelen = 32;
 	SOCKADDR client_socket;
+	int i = *((int*)LParam);
 	//getsockname(ClientSocket, &client_socket, &namelen);
-	getpeername(ClientSocket, &client_socket, &namelen);
-		//cout << "getsockname error # " << WSAGetLastError() << endl;
-		//cout << client_socket.sa_data << endl;
-		//cout << sz_client_name << endl;
-		/*sprintf(
-			sz_client_name,
-			"%i.%i.%i.%i:%i",
-			(unsigned char)client_socket.sa_data[2],
-			(unsigned char)client_socket.sa_data[3],
-			(unsigned char)client_socket.sa_data[4],
-			(unsigned char)client_socket.sa_data[5],
-			(unsigned char)client_socket.sa_data[0]*256 +
-			(unsigned char)client_socket.sa_data[1]
-		);*/
-		//cout << sz_client_name << endl;
+	getpeername(client_sockets[i], &client_socket, &namelen);
+	//cout << "getsockname error # " << WSAGetLastError() << endl;
+	//cout << client_socket.sa_data << endl;
+	//cout << sz_client_name << endl;
+	/*sprintf(
+		sz_client_name,
+		"%i.%i.%i.%i:%i",
+		(unsigned char)client_socket.sa_data[2],
+		(unsigned char)client_socket.sa_data[3],
+		(unsigned char)client_socket.sa_data[4],
+		(unsigned char)client_socket.sa_data[5],
+		(unsigned char)client_socket.sa_data[0]*256 +
+		(unsigned char)client_socket.sa_data[1]
+	);*/
+	//cout << sz_client_name << endl;
 
-		//ClientSocketData client_data(client_socket);
-		//cout << client_data.get_data() << endl;
-		//cout << "Client: " << client_data.get_socket(sz_client_name) << endl;
+	//ClientSocketData client_data(client_socket);
+	//cout << client_data.get_data() << endl;
+	//cout << "Client: " << client_data.get_socket(sz_client_name) << endl;
 	cout << "Client: " << ClientSocketData(client_socket).get_socket(sz_client_name) << endl;
 	//closesocket(ClientSocket);
 	//closesocket(ListenSocket);
@@ -222,19 +254,19 @@ void HandleClient()
 
 		char recvbuffer[BUFFER_SIZE]{};
 		ZeroMemory(recvbuffer, BUFFER_SIZE);
-		received = recv(ClientSocket, recvbuffer, BUFFER_SIZE, 0);
+		received = recv(client_sockets[i], recvbuffer, BUFFER_SIZE, 0);
 		if (received > 0)
 		{
 			cout << "Bytes received:  \t" << received << endl;
-			cout << "Message from :\t" << sz_client_name <<"\t"<< recvbuffer << endl;
+			cout << "Message from :\t" << sz_client_name << "\t" << recvbuffer << endl;
 			//cout << "Received message:\t" << recvbuffer << endl;
 			//int iSendResult = send(ClientSocket, "Привет Client", received, 0);
-			int iSendResult = send(ClientSocket, recvbuffer, received, 0);
+			int iSendResult = send(client_sockets[i], recvbuffer, received, 0);
 
 			if (iSendResult == SOCKET_ERROR)
 			{
 				cout << "Send failed with error #" << WSAGetLastError() << endl;
-				closesocket(ClientSocket);
+				closesocket(client_sockets[i]);
 				WSACleanup();
 				return;
 			}
@@ -244,18 +276,46 @@ void HandleClient()
 		else
 		{
 			cout << "Receive failed with error #" << WSAGetLastError() << endl;
-			closesocket(ClientSocket);
+			closesocket(client_sockets[i]);
 			//WSACleanup();
 			//return;
 		}
 	} while (received > 0);
 
 	//7. Disconnection:
-	int iResult = shutdown(ClientSocket, SD_SEND);
+	int iResult = shutdown(client_sockets[i], SD_SEND);
 	if (iResult == SOCKET_ERROR)
 	{
 		cout << "shutdown failed with error #" << WSAGetLastError() << endl;
 	}
-	closesocket(ClientSocket);
+	closesocket(client_sockets[i]);
+	HANDLE threadHandle = client_handles[i];
+	client_sockets[i] = NULL;
+	client_handles[i] = NULL;
+	number_of_clients--;
+	PrintNumberOfClients();
+	CloseHandle(threadHandle);
 
+}
+
+void PrintNumberOfClients()
+{
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+	ZeroMemory(&consoleInfo, sizeof(consoleInfo));
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleCursorPosition(hConsole, COORD{ 85,0 });
+	cout << "Количество клинтов:  " << number_of_clients << endl;
+
+	SetConsoleCursorPosition(hConsole, consoleInfo.dwCursorPosition);
+}
+
+int FindFreeSlot()
+{
+	for (int i = 0; i < MAX_CONNECTIONS; i++)
+	{
+		if (client_handles[i] == NULL && client_sockets[i] == NULL) return i;
+
+		return -1;
+	}
 }

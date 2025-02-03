@@ -1,12 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.34930.48
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPcalc", "IPcalc\IPcalc.vcxproj", "{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shifts", "Shifts\Shifts.vcxproj", "{3487A43F-ED80-4737-B59D-3FAD2CAA6568}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{61CD3E16-3E04-4406-8372-83D0AFFD7E1A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{06FEBD8C-B34E-4419-9DDF-F78375D72266}"
@@ -19,22 +15,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Debug|x64.ActiveCfg = Debug|x64
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Debug|x64.Build.0 = Debug|x64
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Debug|x86.ActiveCfg = Debug|Win32
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Debug|x86.Build.0 = Debug|Win32
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Release|x64.ActiveCfg = Release|x64
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Release|x64.Build.0 = Release|x64
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Release|x86.ActiveCfg = Release|Win32
-		{AF4C1DB2-FC11-4005-A26B-D4D7BEB069C1}.Release|x86.Build.0 = Release|Win32
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Debug|x64.ActiveCfg = Debug|x64
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Debug|x64.Build.0 = Debug|x64
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Debug|x86.ActiveCfg = Debug|Win32
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Debug|x86.Build.0 = Debug|Win32
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Release|x64.ActiveCfg = Release|x64
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Release|x64.Build.0 = Release|x64
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Release|x86.ActiveCfg = Release|Win32
-		{3487A43F-ED80-4737-B59D-3FAD2CAA6568}.Release|x86.Build.0 = Release|Win32
 		{61CD3E16-3E04-4406-8372-83D0AFFD7E1A}.Debug|x64.ActiveCfg = Debug|x64
 		{61CD3E16-3E04-4406-8372-83D0AFFD7E1A}.Debug|x64.Build.0 = Debug|x64
 		{61CD3E16-3E04-4406-8372-83D0AFFD7E1A}.Debug|x86.ActiveCfg = Debug|Win32

@@ -123,38 +123,43 @@ void main()
 		cout << "Bytes sent: " << iResult << endl;
 
 		//Close connection:receive
-			if (strcmp(sendbuffer, "Exit") == 0)
+		if (strcmp(sendbuffer, "Exit") == 0)
+		{
+			//Close connection:
+			iResult = shutdown(ConnectSocket, SD_SEND);
+			if (iResult == SOCKET_ERROR)
 			{
-				//Close connection:
-				iResult = shutdown(ConnectSocket, SD_SEND);
-				if (iResult == SOCKET_ERROR)
-				{
-					cout << "shutdown failed with error #" << WSAGetLastError() << endl;
-					closesocket(ConnectSocket);
-					WSACleanup();
-					return;
-				}
-				exit = true;
+				cout << "shutdown failed with error #" << WSAGetLastError() << endl;
+				closesocket(ConnectSocket);
+				WSACleanup();
+				return;
 			}
+			exit = true;
+		}
 		///////////////////////
-				int received = 0;
-				//do
-				//{
-				received = recv(ConnectSocket, recvbuffer, BUFFER_SIZE, 0);
-				if (received > 0)
-				{
-					cout << "Bytes received:   " << received << endl;
-					cout << "Received message: " << recvbuffer << endl;
-				}
-				else if (received == 0) cout << "Connection closed" << endl;
-				else cout << "Receive failed with error #" << WSAGetLastError() << endl;
-				//} while (received > 0);
+		int received = 0;
+		//do
+		//{
+		received = recv(ConnectSocket, recvbuffer, BUFFER_SIZE, 0);
+		if (received > 0)
+		{
+			cout << "Bytes received:   " << received << endl;
+			cout << "Received message: " << recvbuffer << endl;
+		}
+		else if (received == 0) cout << "Connection closed" << endl;
+		else cout << "Receive failed with error #" << WSAGetLastError() << endl;
+		//} while (received > 0);
+		if (strcmp(recvbuffer, "No free connections left") == 0)
+		{
+			cout << recvbuffer << endl;
+			break;
+		}
 
-			if (!exit)
-			{
-				ZeroMemory(sendbuffer, BUFFER_SIZE);
-				cout << "Ваше сообщение "; cin.getline(sendbuffer, BUFFER_SIZE);
-			}
+		if (!exit)
+		{
+			ZeroMemory(sendbuffer, BUFFER_SIZE);
+			cout << "Ваше сообщение "; cin.getline(sendbuffer, BUFFER_SIZE);
+		}
 	} while (!exit);
 
 	//5. Disconnection:
