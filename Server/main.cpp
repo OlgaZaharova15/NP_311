@@ -21,7 +21,7 @@
 #include<WinSock2.h>
 #include<WS2tcpip.h>
 #include <windows.h>
-
+#include <ctime>
 
 using std::cin;
 using std::cout;
@@ -32,6 +32,17 @@ using std::endl;
 #define MAX_CONNECTIONS       3
 
 #pragma comment(lib, "Ws2_32.lib")
+
+void printCurrentDateTime() {
+	// Получаем текущее время
+	std::time_t now = std::time(0);
+
+	// Преобразуем в строку формата "YYYY-MM-DD HH:MM:SS"
+	char* dt = std::ctime(&now);
+
+	// Выводим текущее время и дату
+	std::cout << "Текущая дата и время: " << dt;
+}
 
 union ClientSocketData
 {
@@ -259,6 +270,7 @@ void HandleClient(LPVOID LParam)
 		{
 			cout << "Bytes received:  \t" << received << endl;
 			cout << "Message from :\t" << sz_client_name << "\t" << recvbuffer << endl;
+			printCurrentDateTime();
 			//cout << "Received message:\t" << recvbuffer << endl;
 			//int iSendResult = send(ClientSocket, "Привет Client", received, 0);
 			int iSendResult = send(client_sockets[i], recvbuffer, received, 0);

@@ -10,11 +10,22 @@ Client:
 #include<WinSock2.h>
 #include<WS2tcpip.h>
 #include<CommCtrl.h>
+//#include <ctime>
+
 using std::cin;
 using std::cout;
 using std::endl;
 
+/*void printCurrentDateTime() {
+	// Получаем текущее время
+	std::time_t now = std::time(0);
 
+	// Преобразуем в строку формата "YYYY-MM-DD HH:MM:SS"
+	char* dt = std::ctime(&now);
+
+	// Выводим текущее время и дату
+	std::cout << "Текущая дата и время: " << dt;
+}*/
 
 #define DEFAULT_PORT	"27015"
 
@@ -145,6 +156,7 @@ void main()
 		{
 			cout << "Bytes received:   " << received << endl;
 			cout << "Received message: " << recvbuffer << endl;
+			//printCurrentDateTime();
 		}
 		else if (received == 0) cout << "Connection closed" << endl;
 		else cout << "Receive failed with error #" << WSAGetLastError() << endl;
